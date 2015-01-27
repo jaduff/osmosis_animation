@@ -12,4 +12,10 @@ module.exports = function Particle(){
     return (this.y + this.yVector);
   }
 
+  this.getVectorTheta = function(){
+    //javascript only works in radians, so any result will be in rad. Multiple by 180/pi to convert to degrees.
+    var theta = (Math.atan2(this.yVector, this.xVector))*(180/Math.PI);
+    return theta;
+  }
+
 };
