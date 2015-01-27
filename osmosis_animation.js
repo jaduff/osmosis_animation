@@ -3,13 +3,15 @@ window.onload = function(){
   var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
 
   function particle(){
-    this.radius = 5; //size of particle
-    this.x = Math.floor((Math.random() * 500-(this.radius+3)) + 1+(this.radius+3)),  this.y = Math.floor((Math.random() * 500-(this.radius+3)) + 1+(this.radius+3));
+    this.radius = 20; //size of particle
+    this.x = Math.floor((Math.random() * 500-(this.radius*3)) + 1+(this.radius*3)),  this.y = Math.floor((Math.random() * 500-(this.radius*3)) + 1+(this.radius*3));
+    this.nextX = this.x + this.xVector, this.nextY =this.y + this.yVector;
     this.type = "water"; //Type of particle - water, solute
     this.colour = "blue"; //Should be dependent on the particle type
-    this.speed = 10;
-    this.xVector = Math.floor((Math.random() * 10) + 1)*plusOrMinus;
+    this.speed = 3;
+    this.xVector = Math.floor((Math.random() * this.speed*100) + 1)*plusOrMinus/100;
     this.yVector = Math.sqrt((this.speed*this.speed)-(this.xVector*this.xVector))*plusOrMinus;
+    this.scalar = Math.sqrt((this.x * this.x) + (this.y * this.y));
 
     //method to render the particle
     this.render = function(c){
@@ -27,6 +29,29 @@ window.onload = function(){
       }
     }
 
+    this.findTheta = function(){
+      if ( this.x > this.x + this.xVector){
+          var theta = Math.tan(this.xVector / this.yVector);
+        } else {
+          var theta = Math.tan (this.yVector / this.xVector);
+        }
+        return theta;
+      }
+
+      this.findPhi = function(particle2){
+        if (this.x > particle2.x){
+          var phi = Math.tan ((this.y - particle2.y) / (this.x - particle2.x));
+        } else {
+          var phi = Math.tan ((this.x - particle2.x) / (this.y - particle2.y));
+        }
+        return phi;
+      }
+
+    this.resolveConflict = function(particle2){
+      this.xVector = ((this.scalar * Math.cos(this.findTheta() - this.findPhi(particle2)) * (this.radius - particle2.radius) + 2 * particle2.radius * particle2.scalar * Math.cos(particle2.findTheta() - this.findPhi(particle2))) / (this.radius - particle2.radius)) * Math.cos(this.findPhi(particle2)) + this.scalar * (Math.sin(this.findTheta() - this.findPhi(particle2)) * Math.cos(this.findPhi(particle2) + (Math.PI / 2)));
+      this.xVector = ((this.scalar * Math.cos(this.findTheta() - this.findPhi(particle2)) * (this.radius - particle2.radius) + 2 * particle2.radius * particle2.scalar * Math.cos(particle2.findTheta() - this.findPhi(particle2))) / (this.radius - particle2.radius)) * Math.sin(this.findPhi(particle2)) + this.scalar * (Math.sin(this.findTheta() - this.findPhi(particle2)) * Math.sin(this.findPhi(particle2) + (Math.PI / 2)));
+    }
+
   };
 
 //Set the stage
@@ -35,7 +60,7 @@ window.onload = function(){
 
 //instantiate new particle
 var particlearray = new Array();
-  for (i=0; i<10; i++){
+  for (i=0; i<3; i++){
     var circle = new particle();
     particlearray[particlearray.length] = circle;
   }
@@ -58,6 +83,7 @@ setInterval(function(){
         && particlearray[i].x < particlearray[j].x + particlearray[i].radius + particlearray[j].radius)
         && (particlearray[i].y + particlearray[i].radius + particlearray[j].radius > particlearray[j].y
           && particlearray[i].y < particlearray[j].y + particlearray[i].radius + particlearray[j].radius)){
+            particlearray.colour = "red";
             //fine collision detection
             var distance = Math.sqrt(
               ((particlearray[i].x - particlearray[j].x) * (particlearray[i].x - particlearray[j].x))
@@ -65,15 +91,11 @@ setInterval(function(){
               if (distance < (particlearray[i].radius + particlearray[j].radius) )
               {
                 //collision detected
-                particlearray[i].xVector = (particlearray[i].xVector * (particlearray[i].radius - particlearray[j].radius) + (2 * particlearray[j].radius * particlearray[j].xVector)) / (particlearray[i].radius + particlearray[j].radius);
-                particlearray[i].yVector = (particlearray[i].yVector * (particlearray[i].radius - particlearray[j].radius) + (2 * particlearray[j].radius * particlearray[j].yVector)) / (particlearray[i].radius + particlearray[j].radius);
-                particlearray[j].xVector = (particlearray[j].xVector * (particlearray[j].radius - particlearray[i].radius) + (2 * particlearray[i].radius * particlearray[i].xVector)) / (particlearray[j].radius + particlearray[i].radius);
-                particlearray[j].yVector = (particlearray[j].yVector * (particlearray[j].radius - particlearray[i].radius) + (2 * particlearray[i].radius * particlearray[i].yVector)) / (particlearray[j].radius + particlearray[i].radius);
-                particlearray[i].x = particlearray[i].x + particlearray[i].xVector;
-                particlearray[i].y = particlearray[i].y + particlearray[i].yVector;
-                particlearray[j].x = particlearray[j].x + particlearray[j].xVector;
-                particlearray[j].y = particlearray[j].y + particlearray[j].yVector;
-                particlearray[i].colour = "red";
+                particlearray[i].resolveConflict(particlearray[j]);
+                particlearray[j].resolveConflict(particlearray[i]);
+
+
+                  particlearray[i].colour = "red";
               }
             }
           }
