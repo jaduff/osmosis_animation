@@ -1,10 +1,10 @@
 window.onload = function(){
   //var Particle = require('particle.js');
-  var ParticleClass = document.createElement('script');
-  ParticleClass.setAttribute('src','./particle.js');
-  document.head.appendChild(ParticleClass);
+  //var ParticleClass = document.createElement('script');
+  //ParticleClass.setAttribute('src','./particle.js');
+  //document.head.appendChild(ParticleClass);
 
-    //method to render the particle
+    //function to render the particle
     render = function(c, particle){
       c.fillStyle = "blue";
       c.beginPath();
@@ -26,8 +26,9 @@ window.onload = function(){
 
 //instantiate new particle
 var particlearray = new Array();
-  for (i=0; i<3; i++){
-    var circle = new particle();
+  for (i=0; i<10; i++){
+    var circle = new Particle();
+    console.log("x= " + circle.x + ", y= " + circle.y);
     particlearray[particlearray.length] = circle;
   }
 
