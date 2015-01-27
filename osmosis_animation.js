@@ -1,58 +1,24 @@
 window.onload = function(){
-
-  var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-
-  function particle(){
-    this.radius = 20; //size of particle
-    this.x = Math.floor((Math.random() * 500-(this.radius*3)) + 1+(this.radius*3)),  this.y = Math.floor((Math.random() * 500-(this.radius*3)) + 1+(this.radius*3));
-    this.nextX = this.x + this.xVector, this.nextY =this.y + this.yVector;
-    this.type = "water"; //Type of particle - water, solute
-    this.colour = "blue"; //Should be dependent on the particle type
-    this.speed = 3;
-    this.xVector = Math.floor((Math.random() * this.speed*100) + 1)*plusOrMinus/100;
-    this.yVector = Math.sqrt((this.speed*this.speed)-(this.xVector*this.xVector))*plusOrMinus;
-    this.scalar = Math.sqrt((this.x * this.x) + (this.y * this.y));
+  //var Particle = require('particle.js');
+  var ParticleClass = document.createElement('script');
+  ParticleClass.setAttribute('src','./particle.js');
+  document.head.appendChild(ParticleClass);
 
     //method to render the particle
-    this.render = function(c){
-      c.fillStyle = this.colour;
+    render = function(c, particle){
+      c.fillStyle = "blue";
       c.beginPath();
-      c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+      c.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2, false);
       c.fill();
-      this.x = this.x + this.xVector;
-      this.y = this.y + this.yVector;
-      if ( (this.x <= (0+this.radius)) || (this.x >= (500-this.radius)) ) {
-        this.xVector = this.xVector * -1;
+      particle.x = particle.x + particle.xVector;
+      particle.y = particle.y + particle.yVector;
+      if ( (particle.x <= (0+particle.radius)) || (particle.x >= (500-particle.radius)) ) {
+        particle.xVector = particle.xVector * -1;
       }
-      if ( (this.y < (0+this.radius)) || (this.y > (500-this.radius)) ){
-        this.yVector = this.yVector * -1;
+      if ( (particle.y < (0+particle.radius)) || (particle.y > (500-particle.radius)) ){
+        particle.yVector = particle.yVector * -1;
       }
     }
-
-    this.findTheta = function(){
-      if ( this.x > this.x + this.xVector){
-          var theta = Math.tan(this.xVector / this.yVector);
-        } else {
-          var theta = Math.tan (this.yVector / this.xVector);
-        }
-        return theta;
-      }
-
-      this.findPhi = function(particle2){
-        if (this.x > particle2.x){
-          var phi = Math.tan ((this.y - particle2.y) / (this.x - particle2.x));
-        } else {
-          var phi = Math.tan ((this.x - particle2.x) / (this.y - particle2.y));
-        }
-        return phi;
-      }
-
-    this.resolveConflict = function(particle2){
-      this.xVector = ((this.scalar * Math.cos(this.findTheta() - this.findPhi(particle2)) * (this.radius - particle2.radius) + 2 * particle2.radius * particle2.scalar * Math.cos(particle2.findTheta() - this.findPhi(particle2))) / (this.radius - particle2.radius)) * Math.cos(this.findPhi(particle2)) + this.scalar * (Math.sin(this.findTheta() - this.findPhi(particle2)) * Math.cos(this.findPhi(particle2) + (Math.PI / 2)));
-      this.xVector = ((this.scalar * Math.cos(this.findTheta() - this.findPhi(particle2)) * (this.radius - particle2.radius) + 2 * particle2.radius * particle2.scalar * Math.cos(particle2.findTheta() - this.findPhi(particle2))) / (this.radius - particle2.radius)) * Math.sin(this.findPhi(particle2)) + this.scalar * (Math.sin(this.findTheta() - this.findPhi(particle2)) * Math.sin(this.findPhi(particle2) + (Math.PI / 2)));
-    }
-
-  };
 
 //Set the stage
   var canvas  = document.getElementById("animation"),
@@ -74,7 +40,7 @@ setInterval(function(){
   c.strokeRect(0,0,c.canvas.width, canvas.height);
 
   for (i=0; i < particlearray.length; i++){
-    particlearray[i].render(c);
+    render(c, particlearray[i]);
   }
   for (i=0; i < particlearray.length; i++){
     for (j=0; j < particlearray.length; j++){

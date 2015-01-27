@@ -101,15 +101,46 @@ describe('Particle', function(){
   describe('mathematical properties of position', function(){
     describe ('theta - angle formed by xVector and yVector from current position', function(){
       var P = new Particle();
-      P.xVector = 5;
-      P.yVector = 5;
-      assert.equal(Math.round(P.getVectorTheta()), 45);
-      P.xVector = -4;
-      assert.equal(Math.round(P.getVectorTheta()), 129);
-      P.yVector = -5;
-      //assert.equal(Math.round(P.getVectorTheta()), 51);
       P.xVector = 4;
-      //assert.equal(Math.round(P.getVectorTheta()), -51);
+      P.yVector = 5;
+      assert.equal(Math.round(P.getVectorTheta()), 51);
+      P.xVector = -4;
+      P.yVector = 5;
+      assert.equal(Math.round(P.getVectorTheta()), 129);
+      P.xVector = 4
+      P.yVector = -5;
+      assert.equal(Math.round(P.getVectorTheta()), -51);
+      P.xVector = -4;
+      P.yVector = -5
+      assert.equal(Math.round(P.getVectorTheta()), -129);
+    })
+    describe ('phi - angle of contact between balls', function(){
+      var P1 = new Particle();
+      var P2 = new Particle();
+      P1.x = 5;
+      P1.y = 5;
+      P2.x = 10;
+      P2.y = 10;
+      assert.equal(P1.getCollisionPhi(P2), -135);
     })
   })
+
+  describe('Collision avoidance', function(){
+    var P1 = new Particle();
+    var P2 = new Particle();
+    P1.x = 5;
+    P1.y = 5;
+    P1.xVector = 2;
+    P1.yVector = 2;
+    P2.x = 10;
+    P2.y = 10;
+    P2.xVector = 2;
+    P2.yVector = 2;
+    P1.resolveConflict(P2);
+    assert.equal(Math.round(P1.xVector), 2);
+    assert.equal(Math.round(P1.yVector), 3);
+  })
+
+  //have not tested radius
+  //have not tested collision resolution, largely because I don't understand the maths enough to predict adequately
 })
